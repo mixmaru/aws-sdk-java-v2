@@ -45,6 +45,7 @@ import io.netty.util.concurrent.Promise;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.function.Supplier;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -95,7 +96,8 @@ public class ProxyTunnelInitHandlerTest {
         Supplier<HttpClientCodec> codecSupplier = () -> codec;
         when(mockCtx.name()).thenReturn("foo");
 
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, null, REMOTE_HOST, null, codecSupplier);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, null, null, REMOTE_HOST, null,
+                                                                    codecSupplier);
         handler.handlerAdded(mockCtx);
 
         verify(mockPipeline).addBefore(eq("foo"), eq(null), eq(codec));
