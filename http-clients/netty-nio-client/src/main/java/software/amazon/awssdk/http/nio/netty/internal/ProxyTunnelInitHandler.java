@@ -28,11 +28,15 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Promise;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import software.amazon.awssdk.annotations.SdkInternalApi;
 import software.amazon.awssdk.annotations.SdkTestInternalApi;
@@ -49,27 +53,34 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
     private final ChannelPool sourcePool;
     private final String username;
     private final String password;
+    private final Map<String, List<String>> headers;
     private final URI remoteHost;
     private final Promise<Channel> initPromise;
     private final Supplier<HttpClientCodec> httpCodecSupplier;
 
     public ProxyTunnelInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, URI remoteHost,
                                   Promise<Channel> initPromise) {
-        this(sourcePool, proxyUsername, proxyPassword, remoteHost, initPromise, HttpClientCodec::new);
+        this(sourcePool, proxyUsername, proxyPassword, null, remoteHost, initPromise, HttpClientCodec::new);
+    }
+
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, Map<String, List<String>> headers , URI remoteHost,
+                                  Promise<Channel> initPromise) {
+        this(sourcePool, null, null, headers, remoteHost, initPromise, HttpClientCodec::new);
     }
 
     public ProxyTunnelInitHandler(ChannelPool sourcePool, URI remoteHost, Promise<Channel> initPromise) {
-        this(sourcePool, null, null, remoteHost, initPromise, HttpClientCodec::new);
+        this(sourcePool, null, null, null, remoteHost, initPromise, HttpClientCodec::new);
     }
 
     @SdkTestInternalApi
-    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword,
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword, Map<String, List<String>> headers,
                                   URI remoteHost, Promise<Channel> initPromise, Supplier<HttpClientCodec> httpCodecSupplier) {
         this.sourcePool = sourcePool;
         this.remoteHost = remoteHost;
         this.initPromise = initPromise;
         this.username = prosyUsername;
         this.password = proxyPassword;
+        this.headers = headers == null ? Collections.emptyMap() : headers;
         this.httpCodecSupplier = httpCodecSupplier;
     }
 
@@ -156,6 +167,11 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
             String authB64 = Base64.getEncoder().encodeToString(authToken.getBytes(CharsetUtil.UTF_8));
             request.headers().add(HttpHeaderNames.PROXY_AUTHORIZATION, String.format("Basic %s", authB64));
         }
+
+        this.headers.forEach((name, values) -> {
+            values.forEach(value -> request.headers().add(AsciiString.of(name), value));
+        });
+
         
         return request;
     }
