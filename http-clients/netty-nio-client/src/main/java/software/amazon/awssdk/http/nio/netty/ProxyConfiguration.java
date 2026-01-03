@@ -268,6 +268,8 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
          */
         Builder password(String password);
 
+        Builder headers(Map<String, List<String>> headers);
+
         /**
          * Set the option whether to use system property values from {@link ProxySystemSetting} if any of the config options
          * are missing. The value is set to "true" by default which means SDK will automatically use system property values if
@@ -362,6 +364,12 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         @Override
         public Builder password(String password) {
             this.password = password;
+            return this;
+        }
+
+        @Override
+        public Builder headers(Map<String, List<String>> headers) {
+            this.headers = headers;
             return this;
         }
 
