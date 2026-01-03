@@ -58,7 +58,8 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
     private final Promise<Channel> initPromise;
     private final Supplier<HttpClientCodec> httpCodecSupplier;
 
-    public ProxyTunnelInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, Map<String, List<String>> headers, URI remoteHost,
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword,
+                                  Map<String, List<String>> headers, URI remoteHost,
                                   Promise<Channel> initPromise) {
         this(sourcePool, proxyUsername, proxyPassword, headers, remoteHost, initPromise, HttpClientCodec::new);
     }
@@ -69,7 +70,8 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
     }
 
     @SdkTestInternalApi
-    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword, Map<String, List<String>> headers,
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword,
+                                  Map<String, List<String>> headers,
                                   URI remoteHost, Promise<Channel> initPromise, Supplier<HttpClientCodec> httpCodecSupplier) {
         this.sourcePool = sourcePool;
         this.remoteHost = remoteHost;

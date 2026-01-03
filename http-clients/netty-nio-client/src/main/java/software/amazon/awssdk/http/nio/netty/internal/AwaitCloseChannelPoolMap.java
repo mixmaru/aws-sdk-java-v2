@@ -144,7 +144,8 @@ public final class AwaitCloseChannelPoolMap extends SdkChannelPoolMap<URI, Simpl
         if (shouldUseProxyForHost(key)) {
             tcpChannelPool = new BetterSimpleChannelPool(bootstrap, NOOP_HANDLER);
             baseChannelPool = new Http1TunnelConnectionPool(bootstrap.config().group().next(), tcpChannelPool, sslContext,
-                                            proxyAddress(key), proxyConfiguration.username(), proxyConfiguration.password(), proxyConfiguration.headers(),
+                                            proxyAddress(key), proxyConfiguration.username(), proxyConfiguration.password(),
+                                                            proxyConfiguration.headers(),
                                             key, pipelineInitializer, configuration);
         } else {
             tcpChannelPool = new BetterSimpleChannelPool(bootstrap, pipelineInitializer);
