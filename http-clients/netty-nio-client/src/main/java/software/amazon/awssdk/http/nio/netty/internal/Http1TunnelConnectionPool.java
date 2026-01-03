@@ -60,7 +60,8 @@ public class Http1TunnelConnectionPool implements ChannelPool {
     private final NettyConfiguration nettyConfiguration;
 
     public Http1TunnelConnectionPool(EventLoop eventLoop, ChannelPool delegate, SslContext sslContext,
-                                     URI proxyAddress, String proxyUsername, String proxyPassword, Map<String, List<String>> proxyHeaders,
+                                     URI proxyAddress, String proxyUsername, String proxyPassword,
+                                     Map<String, List<String>> proxyHeaders,
                                      URI remoteAddress, ChannelPoolHandler handler, NettyConfiguration nettyConfiguration) {
         this(eventLoop, delegate, sslContext,
              proxyAddress, proxyUsername, proxyPassword, proxyHeaders, remoteAddress, handler,
@@ -79,7 +80,8 @@ public class Http1TunnelConnectionPool implements ChannelPool {
 
     @SdkTestInternalApi
     Http1TunnelConnectionPool(EventLoop eventLoop, ChannelPool delegate, SslContext sslContext,
-                              URI proxyAddress, String proxyUser, String proxyPassword, Map<String, List<String>> proxyHeaders, URI remoteAddress,
+                              URI proxyAddress, String proxyUser, String proxyPassword, Map<String, List<String>> proxyHeaders,
+                              URI remoteAddress,
                               ChannelPoolHandler handler, InitHandlerSupplier initHandlerSupplier,
                               NettyConfiguration nettyConfiguration) {
         this.eventLoop = eventLoop;
@@ -185,7 +187,8 @@ public class Http1TunnelConnectionPool implements ChannelPool {
     @SdkTestInternalApi
     @FunctionalInterface
     interface InitHandlerSupplier {
-        ChannelHandler newInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, Map<String, List<String>> proxyHeaders, URI remoteAddress,
+        ChannelHandler newInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, Map<String,
+                                          List<String>> proxyHeaders, URI remoteAddress,
                                       Promise<Channel> tunnelInitFuture);
     }
 }

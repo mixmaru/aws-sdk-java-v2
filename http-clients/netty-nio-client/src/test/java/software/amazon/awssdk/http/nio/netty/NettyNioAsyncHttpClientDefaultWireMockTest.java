@@ -95,8 +95,8 @@ public class NettyNioAsyncHttpClientDefaultWireMockTest {
                                                                                                           .scheme("http")
                                                                                                           .host("localhost")
                                                                                                           .port(8088)
-                                                                                                          .username("rshini")
-                                                                                                          .password("rshini-password")
+                                                                                                          // .username("rshini")
+                                                                                                          // .password("rshini-password")
                                                                                                           .headers(headers)
                                                                                                           .build())
                                                                     .build();
