@@ -40,6 +40,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -78,6 +80,34 @@ public class NettyNioAsyncHttpClientDefaultWireMockTest {
     @AfterClass
     public static void tearDown() throws Exception {
         client.close();
+    }
+
+    @Test
+    public void rshiniTest() throws Exception {
+        // proxyHeader
+        Map<String, List<String>> headers = new HashMap<>();
+        headers.put("Proxy-Authorization", new ArrayList<String>(){{
+            add("Bearer: some-token");
+        }});
+        // proxy設定ありでclientを作る
+        SdkAsyncHttpClient rshiniClient = NettyNioAsyncHttpClient.builder()
+                                                                    .proxyConfiguration(ProxyConfiguration.builder()
+                                                                                                          .scheme("http")
+                                                                                                          .host("localhost")
+                                                                                                          .port(8088)
+                                                                                                          // .username("rshini")
+                                                                                                          // .password("rshini-password")
+                                                                                                          .headers(headers)
+                                                                                                          .build())
+                                                                    .build();
+
+        URI uri = URI.create("http://localhost:" + mockServer.port());
+        SdkHttpRequest request = createRequest(uri);
+        RecordingResponseHandler recorder = new RecordingResponseHandler();
+        rshiniClient.execute(AsyncExecuteRequest.builder().request(request).requestContentPublisher(createProvider("")).responseHandler(recorder).build());
+        recorder.completeFuture.get(5, TimeUnit.SECONDS);
+        boolean a = true;
+
     }
 
     @Test

@@ -16,7 +16,10 @@
 package software.amazon.awssdk.http.nio.netty;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import software.amazon.awssdk.annotations.SdkPublicApi;
 import software.amazon.awssdk.utils.ProxyConfigProvider;
@@ -41,6 +44,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
     private final int port;
     private final String username;
     private final String password;
+    private final Map<String, List<String>> headers;
     private final Set<String> nonProxyHosts;
 
     private ProxyConfiguration(BuilderImpl builder) {
@@ -56,6 +60,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         this.port = resolvePort(builder, proxyConfigProvider);
         this.username = resolveUserName(builder, proxyConfigProvider);
         this.password = resolvePassword(builder, proxyConfigProvider);
+        this.headers = builder.headers;
         this.nonProxyHosts = resolveNonProxyHosts(builder, proxyConfigProvider);
     }
 
@@ -141,6 +146,10 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
      * */
     public String password() {
         return password;
+    }
+
+    public Map<String, List<String>> headers() {
+        return Collections.unmodifiableMap(headers);
     }
 
     /**
@@ -259,6 +268,8 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
          */
         Builder password(String password);
 
+        Builder headers(Map<String, List<String>> headers);
+
         /**
          * Set the option whether to use system property values from {@link ProxySystemSetting} if any of the config options
          * are missing. The value is set to "true" by default which means SDK will automatically use system property values if
@@ -295,6 +306,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         private int port = 0;
         private String username;
         private String password;
+        private Map<String, List<String>> headers = new HashMap<>();
         private Set<String> nonProxyHosts;
         private Boolean useSystemPropertyValues = Boolean.TRUE;
         private Boolean useEnvironmentVariablesValues = Boolean.TRUE;
@@ -312,6 +324,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
                                  new HashSet<>(proxyConfiguration.nonProxyHosts) : null;
             this.username = proxyConfiguration.username;
             this.password = proxyConfiguration.password;
+            this.headers = proxyConfiguration.headers;
         }
 
         @Override
@@ -351,6 +364,12 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         @Override
         public Builder password(String password) {
             this.password = password;
+            return this;
+        }
+
+        @Override
+        public Builder headers(Map<String, List<String>> headers) {
+            this.headers = headers;
             return this;
         }
 

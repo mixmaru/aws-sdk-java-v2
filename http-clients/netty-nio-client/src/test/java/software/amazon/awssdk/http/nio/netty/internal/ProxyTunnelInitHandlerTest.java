@@ -45,6 +45,7 @@ import io.netty.util.concurrent.Promise;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.function.Supplier;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -95,7 +96,8 @@ public class ProxyTunnelInitHandlerTest {
         Supplier<HttpClientCodec> codecSupplier = () -> codec;
         when(mockCtx.name()).thenReturn("foo");
 
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, null, REMOTE_HOST, null, codecSupplier);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, null, null, REMOTE_HOST, null,
+                                                                    codecSupplier);
         handler.handlerAdded(mockCtx);
 
         verify(mockPipeline).addBefore(eq("foo"), eq(null), eq(codec));
@@ -104,7 +106,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void successfulProxyResponse_completesFuture() {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         successResponse(handler);
 
         assertThat(promise.awaitUninterruptibly().getNow()).isEqualTo(mockChannel);
@@ -115,7 +117,7 @@ public class ProxyTunnelInitHandlerTest {
         when(mockPipeline.get(HttpClientCodec.class)).thenReturn(new HttpClientCodec());
 
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         successResponse(handler);
 
         handler.handlerRemoved(mockCtx);
@@ -127,7 +129,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void successfulProxyResponse_doesNotRemoveSslHandler() {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         successResponse(handler);
 
         verify(mockPipeline, never()).get(eq(SslHandler.class));
@@ -137,7 +139,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void unexpectedMessage_failsPromise() {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         handler.channelRead(mockCtx, new Object());
 
         assertThat(promise.awaitUninterruptibly().isSuccess()).isFalse();
@@ -146,7 +148,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void unsuccessfulResponse_failsPromise() {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
 
         DefaultHttpResponse resp = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.FORBIDDEN);
         handler.channelRead(mockCtx, resp);
@@ -161,7 +163,7 @@ public class ProxyTunnelInitHandlerTest {
         when(mockChannel.writeAndFlush(any())).thenReturn(writePromise);
 
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         handler.handlerAdded(mockCtx);
 
         assertThat(promise.awaitUninterruptibly().isSuccess()).isFalse();
@@ -170,7 +172,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void channelInactive_shouldFailPromise() throws Exception {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         SslCloseCompletionEvent event = new SslCloseCompletionEvent(new RuntimeException(""));
         handler.channelInactive(mockCtx);
 
@@ -181,7 +183,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void unexpectedExceptionThrown_shouldFailPromise() throws Exception {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         handler.exceptionCaught(mockCtx, new RuntimeException("exception"));
 
         assertThat(promise.awaitUninterruptibly().isSuccess()).isFalse();
@@ -194,7 +196,7 @@ public class ProxyTunnelInitHandlerTest {
         when(mockPipeline.get(eq(HttpClientCodec.class))).thenReturn(codec);
 
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
 
         handler.handlerRemoved(mockCtx);
 
@@ -204,7 +206,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void handledAdded_writesRequest_withoutAuth() {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, null, REMOTE_HOST, promise);
         handler.handlerAdded(mockCtx);
 
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
@@ -221,7 +223,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void handledAdded_writesRequest_withAuth() {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, PROXY_USER, PROXY_PASSWORD, REMOTE_HOST, promise);
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, PROXY_USER, PROXY_PASSWORD, null, REMOTE_HOST, promise);
         handler.handlerAdded(mockCtx);
 
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
