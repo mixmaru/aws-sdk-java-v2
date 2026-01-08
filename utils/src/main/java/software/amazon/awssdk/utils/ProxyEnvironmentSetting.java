@@ -30,7 +30,8 @@ public enum ProxyEnvironmentSetting implements SystemSetting {
 
     HTTP_PROXY("http_proxy"),
     HTTPS_PROXY("https_proxy"),
-    NO_PROXY("no_proxy")
+    NO_PROXY("no_proxy"),
+    PROXY_HEADERS("proxy_headers"),
     ;
 
     private final String environmentVariable;

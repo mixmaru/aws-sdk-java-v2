@@ -451,4 +451,12 @@ public final class SdkHttpUtils {
                                                        .orElse(null);
         return extractNonProxyHosts(hosts);
     }
+
+    public static Map<String, List<String>> parseProxyHeadersEnvironmentVariable() {
+        String proxyHeaders = ProxyEnvironmentSetting.PROXY_HEADERS.getStringValue().orElse(null);
+        // String hosts = ProxyEnvironmentSetting.NO_PROXY.getStringValue()
+        //                                                .map(noProxyHost -> noProxyHost.replace(",", "|"))
+        //                                                .orElse(null);
+        // return extractNonProxyHosts(hosts);
+    }
 }
