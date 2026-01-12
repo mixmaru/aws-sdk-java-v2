@@ -19,6 +19,9 @@ import static software.amazon.awssdk.utils.http.SdkHttpUtils.parseNonProxyHostsE
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -85,6 +88,11 @@ public class ProxyEnvironmentVariableConfigProvider implements ProxyConfigProvid
                        .map(userInfo -> userInfo.split(":", 2))
                        .filter(parts -> parts.length > 1)
                        .map(parts -> parts[1]);
+    }
+
+    @Override
+    public Map<String, List<String>> headers() {
+        return parseProxyHeadersEnvironmentVariable();
     }
 
     @Override

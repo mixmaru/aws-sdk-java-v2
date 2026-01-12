@@ -15,6 +15,8 @@
 
 package software.amazon.awssdk.utils;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import software.amazon.awssdk.annotations.SdkProtectedApi;
@@ -108,6 +110,8 @@ public interface ProxyConfigProvider {
      * @return An optional containing the proxy password, if available.
      */
     Optional<String> password();
+
+    Map<String, List<String>> headers();
 
     /**
      * Gets the proxy host.
