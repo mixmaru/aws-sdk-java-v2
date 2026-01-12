@@ -396,6 +396,15 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
     }
 
     public interface CredentialProvider {
+        String getScheme();
         String getCredential();
+    }
+
+    public static class BearerCredentialProvider implements CredentialProvider {
+
+        @Override
+        public String getCredential() {
+            return "";
+        }
     }
 }
