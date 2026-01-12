@@ -41,6 +41,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
     private final int port;
     private final String username;
     private final String password;
+    private final Set<CredentialProvider> credentialProviders;
     private final Set<String> nonProxyHosts;
 
     private ProxyConfiguration(BuilderImpl builder) {
@@ -56,6 +57,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         this.port = resolvePort(builder, proxyConfigProvider);
         this.username = resolveUserName(builder, proxyConfigProvider);
         this.password = resolvePassword(builder, proxyConfigProvider);
+        this.credentialProviders = builder.credentialProviders;
         this.nonProxyHosts = resolveNonProxyHosts(builder, proxyConfigProvider);
     }
 
@@ -141,6 +143,10 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
      * */
     public String password() {
         return password;
+    }
+
+    public Set<CredentialProvider> credentialProviders() {
+        return credentialProviders;
     }
 
     /**
@@ -259,6 +265,8 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
          */
         Builder password(String password);
 
+        Builder credentialProviders(Set<CredentialProvider> credentialProviders);
+
         /**
          * Set the option whether to use system property values from {@link ProxySystemSetting} if any of the config options
          * are missing. The value is set to "true" by default which means SDK will automatically use system property values if
@@ -295,6 +303,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         private int port = 0;
         private String username;
         private String password;
+        private Set<CredentialProvider> credentialProviders;
         private Set<String> nonProxyHosts;
         private Boolean useSystemPropertyValues = Boolean.TRUE;
         private Boolean useEnvironmentVariablesValues = Boolean.TRUE;
@@ -312,6 +321,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
                                  new HashSet<>(proxyConfiguration.nonProxyHosts) : null;
             this.username = proxyConfiguration.username;
             this.password = proxyConfiguration.password;
+            this.credentialProviders = proxyConfiguration.credentialProviders;
         }
 
         @Override
@@ -354,6 +364,11 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
             return this;
         }
 
+        public Builder credentialProviders(Set<CredentialProvider> credentialProviders) {
+            this.credentialProviders = credentialProviders;
+            return this;
+        }
+
         @Override
         public Builder useSystemPropertyValues(Boolean useSystemPropertyValues) {
             this.useSystemPropertyValues = useSystemPropertyValues;
@@ -378,5 +393,9 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         public ProxyConfiguration build() {
             return new ProxyConfiguration(this);
         }
+    }
+
+    public interface CredentialProvider {
+        String getCredential();
     }
 }
