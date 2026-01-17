@@ -44,7 +44,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
     private final String username;
     private final String password;
     private final Set<String> nonProxyHosts;
-    private final HeaderBasedAuthConfiguration headerBasedAuthConfiguration;
+    private final HeaderBasedAuthConfig headerBasedAuthConfig;
 
     private ProxyConfiguration(BuilderImpl builder) {
         this.useSystemPropertyValues = builder.useSystemPropertyValues;
@@ -60,7 +60,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         this.username = resolveUserName(builder, proxyConfigProvider);
         this.password = resolvePassword(builder, proxyConfigProvider);
         this.nonProxyHosts = resolveNonProxyHosts(builder, proxyConfigProvider);
-        this.headerBasedAuthConfiguration = builder.headerBasedAuthConfiguration;
+        this.headerBasedAuthConfig = builder.headerBasedAuthConfig;
     }
 
     private static Set<String> resolveNonProxyHosts(BuilderImpl builder, ProxyConfigProvider proxyConfigProvider) {
@@ -155,8 +155,8 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         return Collections.unmodifiableSet(nonProxyHosts != null ? nonProxyHosts : Collections.emptySet());
     }
 
-    public HeaderBasedAuthConfiguration headerBasedAuthenticationConfiguration() {
-        return headerBasedAuthConfiguration;
+    public HeaderBasedAuthConfig headerBasedAuthenticationConfiguration() {
+        return headerBasedAuthConfig;
     }
 
     @Override
@@ -279,7 +279,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
          */
         Builder useSystemPropertyValues(Boolean useSystemPropertyValues);
 
-        Builder headerBasedAuthenticationConfiguration(HeaderBasedAuthConfiguration configuration);
+        Builder headerBasedAuthenticationConfiguration(HeaderBasedAuthConfig configuration);
 
 
         /**
@@ -306,7 +306,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         private String username;
         private String password;
         private Set<String> nonProxyHosts;
-        private HeaderBasedAuthConfiguration headerBasedAuthConfiguration;
+        private HeaderBasedAuthConfig headerBasedAuthConfig;
         private Boolean useSystemPropertyValues = Boolean.TRUE;
         private Boolean useEnvironmentVariablesValues = Boolean.TRUE;
 
@@ -321,7 +321,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
             this.port = proxyConfiguration.port;
             this.nonProxyHosts = proxyConfiguration.nonProxyHosts != null ?
                                  new HashSet<>(proxyConfiguration.nonProxyHosts) : null;
-            this.headerBasedAuthConfiguration = proxyConfiguration.headerBasedAuthConfiguration;
+            this.headerBasedAuthConfig = proxyConfiguration.headerBasedAuthConfig;
             this.username = proxyConfiguration.username;
             this.password = proxyConfiguration.password;
         }
@@ -373,8 +373,8 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         }
 
         @Override
-        public Builder headerBasedAuthenticationConfiguration(HeaderBasedAuthConfiguration configuration) {
-            this.headerBasedAuthConfiguration = configuration;
+        public Builder headerBasedAuthenticationConfiguration(HeaderBasedAuthConfig configuration) {
+            this.headerBasedAuthConfig = configuration;
             return this;
         }
 
@@ -398,18 +398,18 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         }
     }
 
-    public interface HeaderBasedAuthConfiguration {
+    public interface HeaderBasedAuthConfig {
 
         String headerKey();
 
         String headerValue();
     }
 
-    public static class BearerAuthConfiguration implements HeaderBasedAuthConfiguration {
+    public static class BearerAuthConfig implements HeaderBasedAuthConfig {
 
         private final Supplier<String> tokenSupplier;
 
-        public BearerAuthConfiguration(Supplier<String> tokenSupplier) {
+        public BearerAuthConfig(Supplier<String> tokenSupplier) {
             this.tokenSupplier = tokenSupplier;
         }
 
