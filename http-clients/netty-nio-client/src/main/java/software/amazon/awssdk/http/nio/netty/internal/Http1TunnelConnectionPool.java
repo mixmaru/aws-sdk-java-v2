@@ -52,17 +52,17 @@ public class Http1TunnelConnectionPool implements ChannelPool {
     private final URI proxyAddress;
     private final String proxyUser;
     private final String proxyPassword;
-    private final ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration;
+    private final ProxyConfiguration.HeaderBasedAuthConfiguration headerBasedAuthConfiguration;
     private final URI remoteAddress;
     private final ChannelPoolHandler handler;
     private final InitHandlerSupplier initHandlerSupplier;
     private final NettyConfiguration nettyConfiguration;
 
     public Http1TunnelConnectionPool(EventLoop eventLoop, ChannelPool delegate, SslContext sslContext,
-                                     URI proxyAddress, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration,
+                                     URI proxyAddress, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthConfiguration headerBasedAuthConfiguration,
                                      URI remoteAddress, ChannelPoolHandler handler, NettyConfiguration nettyConfiguration) {
         this(eventLoop, delegate, sslContext,
-             proxyAddress, proxyUsername, proxyPassword, headerBasedAuthenticationConfiguration, remoteAddress, handler,
+             proxyAddress, proxyUsername, proxyPassword, headerBasedAuthConfiguration, remoteAddress, handler,
              ProxyTunnelInitHandler::new, nettyConfiguration);
     }
 
@@ -77,7 +77,7 @@ public class Http1TunnelConnectionPool implements ChannelPool {
 
     @SdkTestInternalApi
     Http1TunnelConnectionPool(EventLoop eventLoop, ChannelPool delegate, SslContext sslContext,
-                              URI proxyAddress, String proxyUser, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration, URI remoteAddress,
+                              URI proxyAddress, String proxyUser, String proxyPassword, ProxyConfiguration.HeaderBasedAuthConfiguration headerBasedAuthConfiguration, URI remoteAddress,
                               ChannelPoolHandler handler, InitHandlerSupplier initHandlerSupplier,
                               NettyConfiguration nettyConfiguration) {
         this.eventLoop = eventLoop;
@@ -86,7 +86,7 @@ public class Http1TunnelConnectionPool implements ChannelPool {
         this.proxyAddress = proxyAddress;
         this.proxyUser = proxyUser;
         this.proxyPassword = proxyPassword;
-        this.headerBasedAuthenticationConfiguration = headerBasedAuthenticationConfiguration;
+        this.headerBasedAuthConfiguration = headerBasedAuthConfiguration;
         this.remoteAddress = remoteAddress;
         this.handler = handler;
         this.initHandlerSupplier = initHandlerSupplier;
@@ -141,8 +141,8 @@ public class Http1TunnelConnectionPool implements ChannelPool {
         if (sslHandler != null) {
             ch.pipeline().addLast(sslHandler);
         }
-        ch.pipeline().addLast(initHandlerSupplier.newInitHandler(delegate, proxyUser, proxyPassword, headerBasedAuthenticationConfiguration, remoteAddress,
-                                                                    tunnelEstablishedPromise));
+        ch.pipeline().addLast(initHandlerSupplier.newInitHandler(delegate, proxyUser, proxyPassword, headerBasedAuthConfiguration, remoteAddress,
+                                                                 tunnelEstablishedPromise));
         tunnelEstablishedPromise.addListener((Future<Channel> f) -> {
             if (f.isSuccess()) {
                 Channel tunnel = f.getNow();
@@ -183,7 +183,7 @@ public class Http1TunnelConnectionPool implements ChannelPool {
     @SdkTestInternalApi
     @FunctionalInterface
     interface InitHandlerSupplier {
-        ChannelHandler newInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration, URI remoteAddress,
+        ChannelHandler newInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthConfiguration headerBasedAuthConfiguration, URI remoteAddress,
                                       Promise<Channel> tunnelInitFuture);
     }
 }

@@ -50,14 +50,16 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
     private final ChannelPool sourcePool;
     private final String username;
     private final String password;
-    private final ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration;
+    private final ProxyConfiguration.HeaderBasedAuthConfiguration headerBasedAuthConfiguration;
     private final URI remoteHost;
     private final Promise<Channel> initPromise;
     private final Supplier<HttpClientCodec> httpCodecSupplier;
 
-    public ProxyTunnelInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration, URI remoteHost,
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword,
+                                  ProxyConfiguration.HeaderBasedAuthConfiguration headerBasedAuthConfiguration, URI remoteHost,
                                   Promise<Channel> initPromise) {
-        this(sourcePool, proxyUsername, proxyPassword, headerBasedAuthenticationConfiguration, remoteHost, initPromise, HttpClientCodec::new);
+        this(sourcePool, proxyUsername, proxyPassword, headerBasedAuthConfiguration, remoteHost, initPromise,
+             HttpClientCodec::new);
     }
 
     public ProxyTunnelInitHandler(ChannelPool sourcePool, URI remoteHost, Promise<Channel> initPromise) {
@@ -65,14 +67,15 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
     }
 
     @SdkTestInternalApi
-    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration,
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword,
+                                  ProxyConfiguration.HeaderBasedAuthConfiguration headerBasedAuthConfiguration,
                                   URI remoteHost, Promise<Channel> initPromise, Supplier<HttpClientCodec> httpCodecSupplier) {
         this.sourcePool = sourcePool;
         this.remoteHost = remoteHost;
         this.initPromise = initPromise;
         this.username = prosyUsername;
         this.password = proxyPassword;
-        this.headerBasedAuthenticationConfiguration = headerBasedAuthenticationConfiguration;
+        this.headerBasedAuthConfiguration = headerBasedAuthConfiguration;
         this.httpCodecSupplier = httpCodecSupplier;
     }
 
@@ -161,8 +164,8 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
         }
 
         // headerBasedAuthConfigがあればヘッダを追加する。
-        if (this.headerBasedAuthenticationConfiguration != null) {
-            request.headers().add(this.headerBasedAuthenticationConfiguration.headerKey(), this.headerBasedAuthenticationConfiguration.headerValue());
+        if (this.headerBasedAuthConfiguration != null) {
+            request.headers().add(this.headerBasedAuthConfiguration.headerKey(), this.headerBasedAuthConfiguration.headerValue());
         }
         
         return request;
