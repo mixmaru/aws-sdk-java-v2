@@ -18,6 +18,8 @@ package software.amazon.awssdk.http.nio.netty;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
+
 import software.amazon.awssdk.annotations.SdkPublicApi;
 import software.amazon.awssdk.utils.ProxyConfigProvider;
 import software.amazon.awssdk.utils.ProxyEnvironmentSetting;
@@ -42,6 +44,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
     private final String username;
     private final String password;
     private final Set<String> nonProxyHosts;
+    private final HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration;
 
     private ProxyConfiguration(BuilderImpl builder) {
         this.useSystemPropertyValues = builder.useSystemPropertyValues;
@@ -57,6 +60,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         this.username = resolveUserName(builder, proxyConfigProvider);
         this.password = resolvePassword(builder, proxyConfigProvider);
         this.nonProxyHosts = resolveNonProxyHosts(builder, proxyConfigProvider);
+        this.headerBasedAuthenticationConfiguration = builder.headerBasedAuthenticationConfiguration;
     }
 
     private static Set<String> resolveNonProxyHosts(BuilderImpl builder, ProxyConfigProvider proxyConfigProvider) {
@@ -271,6 +275,8 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
          */
         Builder useSystemPropertyValues(Boolean useSystemPropertyValues);
 
+        Builder headerBasedAuthenticationConfiguration(HeaderBasedAuthenticationConfiguration configuration);
+
 
         /**
          * Set the option whether to use environment variable values for {@link ProxyEnvironmentSetting} if any of the config
@@ -296,6 +302,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         private String username;
         private String password;
         private Set<String> nonProxyHosts;
+        private HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration;
         private Boolean useSystemPropertyValues = Boolean.TRUE;
         private Boolean useEnvironmentVariablesValues = Boolean.TRUE;
 
@@ -310,6 +317,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
             this.port = proxyConfiguration.port;
             this.nonProxyHosts = proxyConfiguration.nonProxyHosts != null ?
                                  new HashSet<>(proxyConfiguration.nonProxyHosts) : null;
+            this.headerBasedAuthenticationConfiguration = proxyConfiguration.headerBasedAuthenticationConfiguration;
             this.username = proxyConfiguration.username;
             this.password = proxyConfiguration.password;
         }
@@ -360,6 +368,12 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
             return this;
         }
 
+        @Override
+        public Builder headerBasedAuthenticationConfiguration(HeaderBasedAuthenticationConfiguration configuration) {
+            this.headerBasedAuthenticationConfiguration = configuration;
+            return this;
+        }
+
         public void setUseSystemPropertyValues(Boolean useSystemPropertyValues) {
             useSystemPropertyValues(useSystemPropertyValues);
         }
@@ -377,6 +391,32 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         @Override
         public ProxyConfiguration build() {
             return new ProxyConfiguration(this);
+        }
+    }
+
+    public interface HeaderBasedAuthenticationConfiguration {
+
+        String headerKey();
+
+        String headerValue();
+    }
+
+    public static class BearerAuthenticationConfiguration implements HeaderBasedAuthenticationConfiguration {
+
+        private final Supplier<String> tokenSupplier;
+
+        public BearerAuthenticationConfiguration(Supplier<String> tokenSupplier) {
+            this.tokenSupplier = tokenSupplier;
+        }
+
+        @Override
+        public String headerKey() {
+            return "proxy-authorization";
+        }
+
+        @Override
+        public String headerValue() {
+            return String.format("Bearer %s", tokenSupplier.get());
         }
     }
 }
