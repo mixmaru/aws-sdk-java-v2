@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import software.amazon.awssdk.http.Header;
 
 /**
  * Tests for {@link ProxyConfiguration}.
@@ -185,6 +186,18 @@ public class ProxyConfigurationTest {
             setter.invoke(o, randomSet());
         } else if (Boolean.class.equals(paramClass)) {
             setter.invoke(o, RNG.nextBoolean());
+        } else if (ProxyConfiguration.HeaderBasedAuthConfig.class.equals(paramClass)) {
+            setter.invoke(o, new ProxyConfiguration.HeaderBasedAuthConfig() {
+                @Override
+                public String headerKey() {
+                    return randomString();
+                }
+
+                @Override
+                public String headerValue() {
+                    return randomString();
+                }
+            });
         } else {
             throw new RuntimeException("Don't know how create random value for type " + paramClass);
         }
