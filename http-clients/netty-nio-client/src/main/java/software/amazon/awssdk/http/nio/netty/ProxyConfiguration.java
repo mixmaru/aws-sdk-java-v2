@@ -155,6 +155,10 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         return Collections.unmodifiableSet(nonProxyHosts != null ? nonProxyHosts : Collections.emptySet());
     }
 
+    public HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration() {
+        return headerBasedAuthenticationConfiguration;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

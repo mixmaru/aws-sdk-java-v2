@@ -31,6 +31,7 @@ import io.netty.util.concurrent.Promise;
 import java.net.URI;
 import software.amazon.awssdk.annotations.SdkInternalApi;
 import software.amazon.awssdk.annotations.SdkTestInternalApi;
+import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
 import software.amazon.awssdk.http.nio.netty.internal.utils.NettyClientLogger;
 import software.amazon.awssdk.http.nio.netty.internal.utils.NettyUtils;
 import software.amazon.awssdk.utils.StringUtils;
@@ -51,16 +52,17 @@ public class Http1TunnelConnectionPool implements ChannelPool {
     private final URI proxyAddress;
     private final String proxyUser;
     private final String proxyPassword;
+    private final ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration;
     private final URI remoteAddress;
     private final ChannelPoolHandler handler;
     private final InitHandlerSupplier initHandlerSupplier;
     private final NettyConfiguration nettyConfiguration;
 
     public Http1TunnelConnectionPool(EventLoop eventLoop, ChannelPool delegate, SslContext sslContext,
-                                     URI proxyAddress, String proxyUsername, String proxyPassword,
+                                     URI proxyAddress, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration,
                                      URI remoteAddress, ChannelPoolHandler handler, NettyConfiguration nettyConfiguration) {
         this(eventLoop, delegate, sslContext,
-             proxyAddress, proxyUsername, proxyPassword, remoteAddress, handler,
+             proxyAddress, proxyUsername, proxyPassword, headerBasedAuthenticationConfiguration, remoteAddress, handler,
              ProxyTunnelInitHandler::new, nettyConfiguration);
     }
 
@@ -68,14 +70,14 @@ public class Http1TunnelConnectionPool implements ChannelPool {
                                      URI proxyAddress, URI remoteAddress, ChannelPoolHandler handler,
                                      NettyConfiguration nettyConfiguration) {
         this(eventLoop, delegate, sslContext,
-             proxyAddress, null, null, remoteAddress, handler,
+             proxyAddress, null, null, null, remoteAddress, handler,
              ProxyTunnelInitHandler::new, nettyConfiguration);
 
     }
 
     @SdkTestInternalApi
     Http1TunnelConnectionPool(EventLoop eventLoop, ChannelPool delegate, SslContext sslContext,
-                              URI proxyAddress, String proxyUser, String proxyPassword, URI remoteAddress,
+                              URI proxyAddress, String proxyUser, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration, URI remoteAddress,
                               ChannelPoolHandler handler, InitHandlerSupplier initHandlerSupplier,
                               NettyConfiguration nettyConfiguration) {
         this.eventLoop = eventLoop;
@@ -84,6 +86,7 @@ public class Http1TunnelConnectionPool implements ChannelPool {
         this.proxyAddress = proxyAddress;
         this.proxyUser = proxyUser;
         this.proxyPassword = proxyPassword;
+        this.headerBasedAuthenticationConfiguration = headerBasedAuthenticationConfiguration;
         this.remoteAddress = remoteAddress;
         this.handler = handler;
         this.initHandlerSupplier = initHandlerSupplier;
