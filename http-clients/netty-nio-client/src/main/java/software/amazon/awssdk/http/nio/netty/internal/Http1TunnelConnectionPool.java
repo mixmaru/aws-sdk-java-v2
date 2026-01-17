@@ -141,7 +141,7 @@ public class Http1TunnelConnectionPool implements ChannelPool {
         if (sslHandler != null) {
             ch.pipeline().addLast(sslHandler);
         }
-        ch.pipeline().addLast(initHandlerSupplier.newInitHandler(delegate, proxyUser, proxyPassword, remoteAddress,
+        ch.pipeline().addLast(initHandlerSupplier.newInitHandler(delegate, proxyUser, proxyPassword, headerBasedAuthenticationConfiguration, remoteAddress,
                                                                     tunnelEstablishedPromise));
         tunnelEstablishedPromise.addListener((Future<Channel> f) -> {
             if (f.isSuccess()) {
@@ -183,7 +183,7 @@ public class Http1TunnelConnectionPool implements ChannelPool {
     @SdkTestInternalApi
     @FunctionalInterface
     interface InitHandlerSupplier {
-        ChannelHandler newInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, URI remoteAddress,
+        ChannelHandler newInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration, URI remoteAddress,
                                       Promise<Channel> tunnelInitFuture);
     }
 }

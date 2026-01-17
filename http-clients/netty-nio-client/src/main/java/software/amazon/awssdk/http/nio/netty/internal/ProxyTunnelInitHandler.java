@@ -36,6 +36,7 @@ import java.util.Base64;
 import java.util.function.Supplier;
 import software.amazon.awssdk.annotations.SdkInternalApi;
 import software.amazon.awssdk.annotations.SdkTestInternalApi;
+import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
 import software.amazon.awssdk.http.nio.netty.internal.utils.NettyClientLogger;
 import software.amazon.awssdk.utils.StringUtils;
 
@@ -49,27 +50,29 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
     private final ChannelPool sourcePool;
     private final String username;
     private final String password;
+    private final ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration;
     private final URI remoteHost;
     private final Promise<Channel> initPromise;
     private final Supplier<HttpClientCodec> httpCodecSupplier;
 
-    public ProxyTunnelInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, URI remoteHost,
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, String proxyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration, URI remoteHost,
                                   Promise<Channel> initPromise) {
-        this(sourcePool, proxyUsername, proxyPassword, remoteHost, initPromise, HttpClientCodec::new);
+        this(sourcePool, proxyUsername, proxyPassword, headerBasedAuthenticationConfiguration, remoteHost, initPromise, HttpClientCodec::new);
     }
 
     public ProxyTunnelInitHandler(ChannelPool sourcePool, URI remoteHost, Promise<Channel> initPromise) {
-        this(sourcePool, null, null, remoteHost, initPromise, HttpClientCodec::new);
+        this(sourcePool, null, null, null, remoteHost, initPromise, HttpClientCodec::new);
     }
 
     @SdkTestInternalApi
-    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword,
+    public ProxyTunnelInitHandler(ChannelPool sourcePool, String prosyUsername, String proxyPassword, ProxyConfiguration.HeaderBasedAuthenticationConfiguration headerBasedAuthenticationConfiguration,
                                   URI remoteHost, Promise<Channel> initPromise, Supplier<HttpClientCodec> httpCodecSupplier) {
         this.sourcePool = sourcePool;
         this.remoteHost = remoteHost;
         this.initPromise = initPromise;
         this.username = prosyUsername;
         this.password = proxyPassword;
+        this.headerBasedAuthenticationConfiguration = headerBasedAuthenticationConfiguration;
         this.httpCodecSupplier = httpCodecSupplier;
     }
 
