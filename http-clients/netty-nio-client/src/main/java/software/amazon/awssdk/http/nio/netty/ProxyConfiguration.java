@@ -19,7 +19,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
-
 import software.amazon.awssdk.annotations.SdkPublicApi;
 import software.amazon.awssdk.utils.ProxyConfigProvider;
 import software.amazon.awssdk.utils.ProxyEnvironmentSetting;
@@ -155,7 +154,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         return Collections.unmodifiableSet(nonProxyHosts != null ? nonProxyHosts : Collections.emptySet());
     }
 
-    public HeaderBasedAuthConfig headerBasedAuthenticationConfiguration() {
+    public HeaderBasedAuthConfig headerBasedAuthConfig() {
         return headerBasedAuthConfig;
     }
 
