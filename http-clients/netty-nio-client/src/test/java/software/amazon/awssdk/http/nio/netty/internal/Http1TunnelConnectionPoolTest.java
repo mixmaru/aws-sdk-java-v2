@@ -55,6 +55,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import software.amazon.awssdk.http.SdkHttpConfigurationOption;
+import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
 
 /**
  * Unit tests for {@link Http1TunnelConnectionPool}.
@@ -72,6 +73,18 @@ public class Http1TunnelConnectionPoolTest {
     private static final String PROXY_USER = "myuser";
 
     private static final String PROXY_PASSWORD = "mypassword";
+
+    private static final ProxyConfiguration.HeaderBasedAuthConfig PROXY_HEADER_BASED_AUTH_CONFIG = new ProxyConfiguration.HeaderBasedAuthConfig() {
+        @Override
+        public String headerKey() {
+            return "myheaderkey";
+        }
+
+        @Override
+        public String headerValue() {
+            return "myheadervalue";
+        }
+    };
 
     @Mock
     private ChannelPool delegatePool;
@@ -266,16 +279,18 @@ public class Http1TunnelConnectionPoolTest {
             initFuture.setSuccess(mockChannel);
             data.proxyUser(proxyUser);
             data.proxyPassword(proxyPassword);
+            data.proxyHeaderBasedAuthConfig(headerBasedAuthConfig);
             return mock(ChannelHandler.class);
         };
 
         Http1TunnelConnectionPool tunnelPool = new Http1TunnelConnectionPool(GROUP.next(), delegatePool, null,
-                HTTP_PROXY_ADDRESS, PROXY_USER, PROXY_PASSWORD, null, REMOTE_ADDRESS, mockHandler, supplier, configuration);
+                HTTP_PROXY_ADDRESS, PROXY_USER, PROXY_PASSWORD, PROXY_HEADER_BASED_AUTH_CONFIG, REMOTE_ADDRESS, mockHandler, supplier, configuration);
 
         tunnelPool.acquire().awaitUninterruptibly();
 
         assertThat(data.proxyUser()).isEqualTo(PROXY_USER);
         assertThat(data.proxyPassword()).isEqualTo(PROXY_PASSWORD);
+        assertThat(data.proxyHeaderBasedAuthConfig()).isEqualTo(PROXY_HEADER_BASED_AUTH_CONFIG);
 
     }
 
@@ -283,6 +298,7 @@ public class Http1TunnelConnectionPoolTest {
 
         private String proxyUser;
         private String proxyPassword;
+        private ProxyConfiguration.HeaderBasedAuthConfig proxyHeaderBasedAuthConfig;
 
         public void proxyUser(String proxyUser) {
             this.proxyUser = proxyUser;
@@ -300,6 +316,13 @@ public class Http1TunnelConnectionPoolTest {
             return this.proxyPassword;
         }
 
+        public void proxyHeaderBasedAuthConfig(ProxyConfiguration.HeaderBasedAuthConfig proxyHeaderBasedAuthConfig) {
+            this.proxyHeaderBasedAuthConfig = proxyHeaderBasedAuthConfig;
+        }
+
+        public ProxyConfiguration.HeaderBasedAuthConfig proxyHeaderBasedAuthConfig() {
+            return proxyHeaderBasedAuthConfig;
+        }
     }
 
     private static class TestSslContext extends SslContext {

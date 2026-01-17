@@ -53,6 +53,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import software.amazon.awssdk.http.nio.netty.ProxyConfiguration;
 
 /**
  * Unit tests for {@link ProxyTunnelInitHandler}.
@@ -64,6 +65,9 @@ public class ProxyTunnelInitHandlerTest {
     private static final URI REMOTE_HOST = URI.create("https://s3.amazonaws.com:1234");
     private static final String PROXY_USER = "myuser";
     private static final String PROXY_PASSWORD = "mypassword";
+    private static final String PROXY_TOKEN = "mytoken";
+    private static final ProxyConfiguration.HeaderBasedAuthConfig PROXY_HEADER_BASED_AUTH_CONFIG =
+        new ProxyConfiguration.BearerAuthConfig(() -> PROXY_TOKEN);
 
     @Mock
     private ChannelHandlerContext mockCtx;
@@ -222,7 +226,7 @@ public class ProxyTunnelInitHandlerTest {
     @Test
     public void handledAdded_writesRequest_withAuth() {
         Promise<Channel> promise = GROUP.next().newPromise();
-        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, PROXY_USER, PROXY_PASSWORD, null,
+        ProxyTunnelInitHandler handler = new ProxyTunnelInitHandler(mockChannelPool, PROXY_USER, PROXY_PASSWORD, PROXY_HEADER_BASED_AUTH_CONFIG,
                                                                     REMOTE_HOST, promise);
         handler.handlerAdded(mockCtx);
 
@@ -236,6 +240,7 @@ public class ProxyTunnelInitHandlerTest {
 
         String authB64 = Base64.getEncoder().encodeToString(String.format("%s:%s", PROXY_USER, PROXY_PASSWORD).getBytes(CharsetUtil.UTF_8));
         expectedRequest.headers().add(HttpHeaderNames.PROXY_AUTHORIZATION, String.format("Basic %s", authB64));
+        expectedRequest.headers().add(HttpHeaderNames.PROXY_AUTHORIZATION, String.format("Bearer %s", PROXY_TOKEN));
 
         assertThat(requestCaptor.getValue()).isEqualTo(expectedRequest);
     }
