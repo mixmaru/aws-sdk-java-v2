@@ -163,7 +163,6 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
             request.headers().add(HttpHeaderNames.PROXY_AUTHORIZATION, String.format("Basic %s", authB64));
         }
 
-        // headerBasedAuthConfigがあればヘッダを追加する。
         if (this.headerBasedAuthConfig != null) {
             request.headers().add(this.headerBasedAuthConfig.headerKey(), this.headerBasedAuthConfig.headerValue());
         }

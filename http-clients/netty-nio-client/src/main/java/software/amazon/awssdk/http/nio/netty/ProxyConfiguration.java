@@ -154,6 +154,10 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         return Collections.unmodifiableSet(nonProxyHosts != null ? nonProxyHosts : Collections.emptySet());
     }
 
+    /**
+     * @return The configuration for header-based authentication to be applied to proxied requests,
+     * or {@code null} if not configured.
+     */
     public HeaderBasedAuthConfig headerBasedAuthConfig() {
         return headerBasedAuthConfig;
     }
@@ -278,6 +282,12 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
          */
         Builder useSystemPropertyValues(Boolean useSystemPropertyValues);
 
+        /**
+         * Set the configuration for header-based authentication to be applied to proxied requests.
+         *
+         * @param configuration The configuration for header-based authentication.
+         * @return This object for method chaining.
+         */
         Builder headerBasedAuthenticationConfiguration(HeaderBasedAuthConfig configuration);
 
 
