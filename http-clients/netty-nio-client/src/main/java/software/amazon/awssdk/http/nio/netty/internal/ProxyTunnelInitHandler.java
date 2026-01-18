@@ -164,7 +164,7 @@ public final class ProxyTunnelInitHandler extends ChannelDuplexHandler {
         }
 
         if (this.headerBasedAuthConfig != null) {
-            request.headers().add(this.headerBasedAuthConfig.headerKey(), this.headerBasedAuthConfig.headerValue());
+            request.headers().add(this.headerBasedAuthConfig.headerName(), this.headerBasedAuthConfig.headerValue());
         }
         
         return request;

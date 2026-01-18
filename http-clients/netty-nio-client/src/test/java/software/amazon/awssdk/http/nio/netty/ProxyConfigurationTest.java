@@ -189,7 +189,7 @@ public class ProxyConfigurationTest {
         } else if (ProxyConfiguration.HeaderBasedAuthConfig.class.equals(paramClass)) {
             setter.invoke(o, new ProxyConfiguration.HeaderBasedAuthConfig() {
                 @Override
-                public String headerKey() {
+                public String headerName() {
                     return randomString();
                 }
 

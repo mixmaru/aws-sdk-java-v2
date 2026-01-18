@@ -409,7 +409,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
 
     public interface HeaderBasedAuthConfig {
 
-        String headerKey();
+        String headerName();
 
         String headerValue();
     }
@@ -423,7 +423,7 @@ public final class ProxyConfiguration implements ToCopyableBuilder<ProxyConfigur
         }
 
         @Override
-        public String headerKey() {
+        public String headerName() {
             return "proxy-authorization";
         }
 

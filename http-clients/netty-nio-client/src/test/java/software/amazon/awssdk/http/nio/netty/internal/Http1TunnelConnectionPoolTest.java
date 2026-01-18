@@ -76,7 +76,7 @@ public class Http1TunnelConnectionPoolTest {
 
     private static final ProxyConfiguration.HeaderBasedAuthConfig PROXY_HEADER_BASED_AUTH_CONFIG = new ProxyConfiguration.HeaderBasedAuthConfig() {
         @Override
-        public String headerKey() {
+        public String headerName() {
             return "myheaderkey";
         }
 
